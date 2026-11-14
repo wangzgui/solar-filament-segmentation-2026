@@ -23,6 +23,13 @@ def rebuild_f4(base, probability):
     return masks
 
 
+def select_photo(base, views, probability, spec):
+    bank = bank_for(rebuild_f4(base, probability), views, probability)
+    scores = predict(bank, spec["selection_full_models"])
+    selected, _ = soft(bank, scores, spec["pq_price"], False)
+    return [bank.masks[i] for i in selected]
+
+
 def run(root, output, *, mul2_root=None, weights_root=None, probability_root=None, native_only=False):
     reference = Path(__file__).with_name("fusion_reference.json")
     spec = json.loads(reference.read_text(encoding="utf-8"))["fit_models"]
@@ -51,12 +58,13 @@ def run(root, output, *, mul2_root=None, weights_root=None, probability_root=Non
         maps = {stem: [p for p in index.get(stem, []) if p.name in filenames
                        and p.parent.as_posix().endswith("/" + suffix)]}
         probability, _ = read_test_map(maps, stem, photo, models)
-        bank = bank_for(rebuild_f4(base, probability), views, probability)
-        scores = predict(bank, spec["selection_full_models"])
-        selected, _ = soft(bank, scores, spec["pq_price"], False)
-        predictions[stem] = [bank.masks[i] for i in selected]
+        predictions[stem] = select_photo(base, views, probability, spec)
         if k % 30 == 0:
             print(f"Recomputed {k}/180 photos", flush=True)
+    publish_signed(output, predictions)
+
+
+def publish_signed(output, predictions):
     output.parent.mkdir(parents=True, exist_ok=True)
     temporary = output.with_name(output.name + ".pending")
     try:

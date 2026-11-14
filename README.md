@@ -16,7 +16,7 @@ The pipeline combines Mask R-CNN proposals, an instance-conditioned U-Net refine
 - [Signed submission](results/submission.csv)
 - [Acknowledgments and original references](docs/upstream_attribution.md)
 
-The evaluator notebook automatically resolves the versioned Kaggle assets after the official competition dataset is attached. Its default CPU mode recomputes H6a from signed intermediate predictions, with training skipped. An optional GPU mode reruns the S0 neural ensemble. The full raw-image Mul2 path still requires further work and validation. `python verify_submission.py` validates the archived CSV's SHA-256, instance numbering and pixel exclusivity.
+The evaluator notebook defaults to full GPU inference from official test images and signed, automatically resolved assets. It rebuilds both neural branches and H6a without training or archived predictions. Use a short smoke run first. The new raw-image path has synthetic integration coverage and awaits a real Kaggle run and championship checksum. The original cached replay remains available as a CPU mode. The validator checks the signed file's SHA-256, RLE format and pixel exclusivity.
 
 Competition images and ground-truth annotations are obtained from the official competition. The repository contains code and aggregate diagnostic evidence. Checkpoint and cache locations are documented in the reproduction guide.
 

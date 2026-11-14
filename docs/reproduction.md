@@ -2,15 +2,19 @@
 
 ## Start with the evaluator notebook
 
-1. Import [00_final_demo.ipynb](../notebooks/00_final_demo.ipynb) into Kaggle. Join the competition and attach only the [official competition dataset](https://www.kaggle.com/competitions/filament-segmentation-2026/data). Enable Internet if the notebook needs to clone the repository or install a missing package.
-2. Run all cells in an interactive Kaggle session. KaggleHub resolves the exact public dataset versions automatically. Kaggle requires input sources to be available before a saved rerun, so run interactively before using Save Version.
-3. The default CPU mode writes `/kaggle/working/solar_final_demo/verified_replay-*/submission.csv` and a manifest after computing the new masks and checking the champion hash.
+1. Import [00_final_demo.ipynb](../notebooks/00_final_demo.ipynb) into Kaggle. Join the competition and attach the [official competition dataset](https://www.kaggle.com/competitions/filament-segmentation-2026/data). Select GPU (dual T4 recommended) and enable Internet so the notebook can clone the public source and install missing packages.
+2. In the first cell use `MODE = "full_inference"`. Set `SMOKE_PHOTOS = 2` for a short interactive check. KaggleHub resolves the model assets and recipe manifests. Do this interactively before using Save Version so Kaggle can attach the sources. Smoke output has its own filename and is not a competition submission. The post-inference `smoke_comparison.json` compares those photos with the archived mask sequences.
+3. For the all-photo run set `SMOKE_PHOTOS = 0`. A matching result is written under `/kaggle/working/solar_final_demo/full_inference-*/submission.csv`. The signed CSV is accepted only after mask validation and a byte-for-byte SHA-256 check. Preserve the run manifest if there is a mismatch.
 
 | Mode | Starts from | Verification |
 | --- | --- | --- |
-| `verified_replay` (CPU) | Original Mul2 and S0 intermediate predictions; F4 geometry, candidate scoring, set selection and CSV are regenerated | Original notebook 05 produced the champion bytes on Kaggle. The new launcher is covered by local tests; its automated dataset attachment and full 180-photo run have not been independently verified. |
-| `fresh_s0` (CUDA, preferably dual T4) | Official test photos for all ten S0 neural forwards, plus signed Mul2 receipts | Uses the original S0 inference implementation. GPU execution and exact output parity are unverified. Reserve at least 8 GB temporary disk for inference accumulators, plus space for weights, maps and other inputs. |
-| `full_inference` | Goal: original images for both streams | Exits with the documented blocker. The original Mul2 test path reads archived A1 seed masks and G3/Q1 intermediates, and can also use an archived contour reference. The 35-photo GPU audit verified the main view; it does not establish raw-image parity for the full test roster. |
+| `full_inference` (default, CUDA) | Official test images, signed A1/V1, two Mul2 semantic checkpoints, ten S0 checkpoints, frozen HGB/Ridge models and recipe manifests. Generates A1 seeds, four transformed proposal streams, Mul2 contour/vote and S0 before H6a. | Launcher and frozen handoff are tested with synthetic data. Real Kaggle GPU execution and byte parity are still pending. |
+| `verified_replay` (CPU) | Original signed Mul2 and S0 predictions; F4 masks, candidate scores, H6a selection and CSV are recomputed | Original notebook 05 produced the champion bytes on Kaggle. The streamlined launcher retains its local checks. |
+| `fresh_s0` (CUDA) | Fresh S0 neural forwards and archived Mul2 receipts | Useful for isolating S0 parity. Real GPU parity is still pending. |
+
+The original Mul2 archive export read A1 predictions and G/Q cached arrays. The new raw-image loader uses the exact original Mul2 source in notebook 03, validates G/Q metadata and checkpoints, and runs the original A1 main-view, two flips, two rotations and contour algorithms fresh. It never loads G/Q photo predictions, archived A1 seeds, archived contours, Mul2/S0 caches or test labels. It reads signed G/Q configuration manifests and the frozen upstream C-HGB model. Dataset mounts may include other files that the raw loader does not read.
+
+Use the recorded Tesla T4 / CUDA 12.8, PyTorch 2.10.0+cu128, TorchVision 0.25.0+cu128 and OpenCV 4.13.0 versions when available. The launch records installed versions. Budget at least 8 GB for S0 temporary arrays, plus model, map and scratch storage. CUDA/kernel differences can affect byte parity. A full GPU run from an evaluator-accessible account is still the release acceptance test.
 
 The demo's default run skips training and evaluation. Its optional section points to the original training notebooks, model configuration, and labeled development/audit path. The [asset inventory](assets.md) identifies neural checkpoints, cached predictions, and files generated at run time.
 
