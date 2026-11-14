@@ -1,0 +1,109 @@
+{
+  "code_sha256": "3c7320295b58d0ee06d44ad5bc03f64e59321a1dfadd4cd7f74d29f17e21177e",
+  "fusion_parameters": {
+    "duplicate_veto_iou": 0.7,
+    "duplicate_override_iou_gain": 0.08,
+    "release_iou_min": 0.04,
+    "anchor_post_floor": 0.065,
+    "anchor_post_original_floor": 0.02,
+    "donor_post_surplus": 0.1,
+    "donor_post_s0_strong": 0.58,
+    "donor_post_s0_weak": 0.52,
+    "consensus_surplus": 0.07,
+    "consensus_swap_margin": 0.045,
+    "soft_anchor_max": 0.035,
+    "soft_donor_max": 0.025
+  },
+  "candidate_v1": {
+    "candidate_contours": "frozen F4 and raw archived donor contours",
+    "code_sha256": "685186fde9e58f84b6085aec15289728341eff06667e76c57abbae6d39edaf2d",
+    "config": {
+      "input_root": "/kaggle/input",
+      "output_root": "/kaggle/working/F4_Candidate_V1",
+      "s0_archive_replay": "",
+      "s0_oof_cache_dirs": [],
+      "s0_original_submission": "",
+      "s0_receipt": ""
+    },
+    "models": {
+      "relational": [
+        "anchor",
+        "det_score",
+        "log_area",
+        "log_elongation",
+        "radial",
+        "component_count",
+        "support_views",
+        "support_iou",
+        "s0_mean",
+        "s0_fraction",
+        "s0_contrast",
+        "anchor_iou",
+        "inside_anchor",
+        "contains_anchor",
+        "duplicate_donors",
+        "fragment_edges",
+        "extension_edges",
+        "anchor_fragment_edges",
+        "stronger_competitor",
+        "anchor_touch_count"
+      ],
+      "semantic": [
+        "anchor",
+        "det_score",
+        "log_area",
+        "log_elongation",
+        "radial",
+        "component_count",
+        "support_views",
+        "support_iou",
+        "s0_mean",
+        "s0_fraction",
+        "s0_contrast"
+      ],
+      "visual": [
+        "anchor",
+        "det_score",
+        "log_area",
+        "log_elongation",
+        "radial",
+        "component_count",
+        "support_views",
+        "support_iou"
+      ]
+    },
+    "rules": {
+      "add_conservative": 0.055,
+      "add_joint": 0.02,
+      "add_semantic": 0.035,
+      "drop_conservative": 0.11,
+      "drop_joint": 0.06,
+      "drop_relational": 0.065,
+      "duplicate_iou": 0.55,
+      "max_relation_gap": 36.0,
+      "milp_seconds": 45.0,
+      "min_donor_area": 96,
+      "min_endpoint_alignment": 0.8,
+      "relation_penalty": 0.07,
+      "ridge_alpha": 12.0,
+      "swap_margin": 0.045
+    },
+    "test_gt_access": false,
+    "training": "Selection only, leave-one-date-out"
+  },
+  "s0": {
+    "original_submission_id": 57275747,
+    "original_submission_sha256": "eb87c29dfb233d3d60ae24d805096f59f5d63995949ce63880c426beeeddea47",
+    "original_submission_rows": 1177,
+    "original_submission_nonempty_photos": 177,
+    "original_submission_bytes_verified": false,
+    "archive_replay_sha256_expected": "4e7187f9bd998efad6cefc471ee62f5f5acf9f208d1cadc900d640d8e9d1b519",
+    "archive_replay_bytes_verified": true,
+    "leaderboard_display": 0.39,
+    "test_predictions_scored": 0,
+    "replay_path": "/kaggle/input/datasets/lojhhggg/sanxiandata/submission.csv"
+  },
+  "test_gt_access": false,
+  "c5_known_public_lb_champion": true,
+  "h7": "H6b followed by H4b, declared before scoring"
+}

@@ -1,0 +1,26 @@
+{
+  "status": "verified",
+  "verified_photos": 35,
+  "scope": "main_view_A1; augmented view donors from Mul2 archive",
+  "runtime": {
+    "torch": "2.10.0+cu128",
+    "torchvision": "0.25.0+cu128",
+    "opencv": "4.13.0",
+    "gpu": "Tesla T4",
+    "cuda": "12.8"
+  },
+  "archived_runtime": {
+    "torch": "2.10.0+cu128",
+    "torchvision": "0.25.0+cu128",
+    "opencv": "4.13.0",
+    "gpu": "Tesla T4",
+    "cuda": "12.8"
+  },
+  "matched_runtime": true,
+  "mul2_code_sha256": "e182a7008aaf7e7481718c9e78c508b87dbd64228179d54cf9679bf92c4f9272",
+  "upstream_package_sha256": "a158f74389a5f7adf2f8af6bab9c4c83c911e6ec7195178ef5990658b7083dc9",
+  "quality_policy": {
+    "tau": 0.2,
+    "orphan_floor": 0.7
+  }
+}

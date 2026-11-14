@@ -1,0 +1,219 @@
+{
+  "status": "historical_archive",
+  "stage_table_sha256": "cfd2c5e6d66a535bc973b1bfa1a777fd9abe13beaefa100dbae38353c9078f41",
+  "search_sha256": "18cba2da214d9b4d4948ee87bcbfac278622d266396a9bad6fa501c0318f085e",
+  "default_policy_stage_metrics": [
+    {
+      "stage": "detector_only",
+      "refiner_enabled": "False",
+      "tile_enabled": "False",
+      "tp": "915",
+      "fp": "939",
+      "fn": "509",
+      "iou_sum": "588.862545671661",
+      "ambiguous_gt": "0",
+      "ambiguous_pred": "0",
+      "fragmented_gt": "202",
+      "merged_pred": "87",
+      "pq": "0.3592816019961324",
+      "dq": "0.5582672361195851",
+      "sq": "0.6435656236848754",
+      "rq": "0.5582672361195851",
+      "n_photos": "140",
+      "n_annotation_views": "204"
+    },
+    {
+      "stage": "detector_refiner",
+      "refiner_enabled": "True",
+      "tile_enabled": "False",
+      "tp": "941",
+      "fp": "938",
+      "fn": "483",
+      "iou_sum": "614.2657876595456",
+      "ambiguous_gt": "0",
+      "ambiguous_pred": "0",
+      "fragmented_gt": "238",
+      "merged_pred": "113",
+      "pq": "0.3719441644926101",
+      "dq": "0.5697850438994854",
+      "sq": "0.6527797955999421",
+      "rq": "0.5697850438994854",
+      "n_photos": "140",
+      "n_annotation_views": "204"
+    },
+    {
+      "stage": "complete",
+      "refiner_enabled": "True",
+      "tile_enabled": "False",
+      "tp": "941",
+      "fp": "938",
+      "fn": "483",
+      "iou_sum": "614.2657876595456",
+      "ambiguous_gt": "0",
+      "ambiguous_pred": "0",
+      "fragmented_gt": "238",
+      "merged_pred": "113",
+      "pq": "0.3719441644926101",
+      "dq": "0.5697850438994854",
+      "sq": "0.6527797955999421",
+      "rq": "0.5697850438994854",
+      "n_photos": "140",
+      "n_annotation_views": "204"
+    }
+  ],
+  "first_round_detector_score_only": [
+    {
+      "fit": "all_validation_for_deployment",
+      "round": "0",
+      "parameter": "DETECTION_THRESHOLD",
+      "value": "0.3",
+      "pq": "0.33246480347550456",
+      "DETECTION_THRESHOLD": "0.3",
+      "MASK_THRESHOLD": "0.5",
+      "REFINER_THRESHOLD": "0.65",
+      "MASK_NMS_IOU": "0.5",
+      "MIN_INSTANCE_AREA": "32"
+    },
+    {
+      "fit": "all_validation_for_deployment",
+      "round": "0",
+      "parameter": "DETECTION_THRESHOLD",
+      "value": "0.5",
+      "pq": "0.3719441644926101",
+      "DETECTION_THRESHOLD": "0.5",
+      "MASK_THRESHOLD": "0.5",
+      "REFINER_THRESHOLD": "0.65",
+      "MASK_NMS_IOU": "0.5",
+      "MIN_INSTANCE_AREA": "32"
+    },
+    {
+      "fit": "all_validation_for_deployment",
+      "round": "0",
+      "parameter": "DETECTION_THRESHOLD",
+      "value": "0.7",
+      "pq": "0.3927419011977841",
+      "DETECTION_THRESHOLD": "0.7",
+      "MASK_THRESHOLD": "0.5",
+      "REFINER_THRESHOLD": "0.65",
+      "MASK_NMS_IOU": "0.5",
+      "MIN_INSTANCE_AREA": "32"
+    }
+  ],
+  "scope": "Same archived 140 V1 validation photos / 204 annotator views. V1 checkpoint and policy selection exposure.",
+  "other_archived_single_factor_sweeps": {
+    "REFINER_THRESHOLD": [
+      {
+        "fit": "all_validation_for_deployment",
+        "round": "1",
+        "parameter": "REFINER_THRESHOLD",
+        "value": "0.5",
+        "pq": "0.40472924864878695",
+        "DETECTION_THRESHOLD": "0.7",
+        "MASK_THRESHOLD": "0.5",
+        "REFINER_THRESHOLD": "0.5",
+        "MASK_NMS_IOU": "0.3",
+        "MIN_INSTANCE_AREA": "64"
+      },
+      {
+        "fit": "all_validation_for_deployment",
+        "round": "1",
+        "parameter": "REFINER_THRESHOLD",
+        "value": "0.65",
+        "pq": "0.40409990165869253",
+        "DETECTION_THRESHOLD": "0.7",
+        "MASK_THRESHOLD": "0.5",
+        "REFINER_THRESHOLD": "0.65",
+        "MASK_NMS_IOU": "0.3",
+        "MIN_INSTANCE_AREA": "64"
+      },
+      {
+        "fit": "all_validation_for_deployment",
+        "round": "1",
+        "parameter": "REFINER_THRESHOLD",
+        "value": "0.8",
+        "pq": "0.40145684538805",
+        "DETECTION_THRESHOLD": "0.7",
+        "MASK_THRESHOLD": "0.5",
+        "REFINER_THRESHOLD": "0.8",
+        "MASK_NMS_IOU": "0.3",
+        "MIN_INSTANCE_AREA": "64"
+      }
+    ],
+    "MASK_NMS_IOU": [
+      {
+        "fit": "all_validation_for_deployment",
+        "round": "1",
+        "parameter": "MASK_NMS_IOU",
+        "value": "0.3",
+        "pq": "0.40472924864878695",
+        "DETECTION_THRESHOLD": "0.7",
+        "MASK_THRESHOLD": "0.5",
+        "REFINER_THRESHOLD": "0.5",
+        "MASK_NMS_IOU": "0.3",
+        "MIN_INSTANCE_AREA": "64"
+      },
+      {
+        "fit": "all_validation_for_deployment",
+        "round": "1",
+        "parameter": "MASK_NMS_IOU",
+        "value": "0.5",
+        "pq": "0.39586845211255767",
+        "DETECTION_THRESHOLD": "0.7",
+        "MASK_THRESHOLD": "0.5",
+        "REFINER_THRESHOLD": "0.5",
+        "MASK_NMS_IOU": "0.5",
+        "MIN_INSTANCE_AREA": "64"
+      },
+      {
+        "fit": "all_validation_for_deployment",
+        "round": "1",
+        "parameter": "MASK_NMS_IOU",
+        "value": "0.7",
+        "pq": "0.38793855188294485",
+        "DETECTION_THRESHOLD": "0.7",
+        "MASK_THRESHOLD": "0.5",
+        "REFINER_THRESHOLD": "0.5",
+        "MASK_NMS_IOU": "0.7",
+        "MIN_INSTANCE_AREA": "64"
+      }
+    ],
+    "DETECTION_THRESHOLD": [
+      {
+        "fit": "all_validation_for_deployment",
+        "round": "1",
+        "parameter": "DETECTION_THRESHOLD",
+        "value": "0.3",
+        "pq": "0.3646331293001393",
+        "DETECTION_THRESHOLD": "0.3",
+        "MASK_THRESHOLD": "0.5",
+        "REFINER_THRESHOLD": "0.65",
+        "MASK_NMS_IOU": "0.3",
+        "MIN_INSTANCE_AREA": "64"
+      },
+      {
+        "fit": "all_validation_for_deployment",
+        "round": "1",
+        "parameter": "DETECTION_THRESHOLD",
+        "value": "0.5",
+        "pq": "0.39410409347183367",
+        "DETECTION_THRESHOLD": "0.5",
+        "MASK_THRESHOLD": "0.5",
+        "REFINER_THRESHOLD": "0.65",
+        "MASK_NMS_IOU": "0.3",
+        "MIN_INSTANCE_AREA": "64"
+      },
+      {
+        "fit": "all_validation_for_deployment",
+        "round": "1",
+        "parameter": "DETECTION_THRESHOLD",
+        "value": "0.7",
+        "pq": "0.40409990165869253",
+        "DETECTION_THRESHOLD": "0.7",
+        "MASK_THRESHOLD": "0.5",
+        "REFINER_THRESHOLD": "0.65",
+        "MASK_NMS_IOU": "0.3",
+        "MIN_INSTANCE_AREA": "64"
+      }
+    ]
+  }
+}

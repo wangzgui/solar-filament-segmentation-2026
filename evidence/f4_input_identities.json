@@ -1,0 +1,142 @@
+{
+  "audit_code_sha256": "127acda26d6c296b696338b02adb26609a3804cd989297770017eb8b65caca52",
+  "mul2_identity": "c7ee748b082c1dc0bffe09218b4a8291a5e287281c639eeaf1c2f0f2019bea64",
+  "mul2_sha256": "ba78fdd88a08ec280197f4e2120a9abf850798de4983195c11f80f9c5fd795dd",
+  "f4_reference": {
+    "path": "/kaggle/input/datasets/zhuowamg/fas-v2out/F_AS_Contour_V2/run_20261112_052520_211154/sub_F4_conservative.csv",
+    "sha256": "238b0dc890e6c1e93bc60f643837f4e534b9705f1811ee038bbb3c182f24670c",
+    "roster_size": 180,
+    "photos_with_instances": 179,
+    "instance_rows": 1233
+  },
+  "f4_parameters": {
+    "conservative": {
+      "band": 3.0,
+      "add_p": 0.55,
+      "remove_p": 0.22
+    },
+    "moderate": {
+      "band": 6.0,
+      "add_p": 0.45,
+      "remove_p": 0.3
+    }
+  },
+  "f4_prior_receipt_hashes": {
+    "submission_manifest.json": "e0578315a74ccfbef8d439f4f59b35fa2e69d7bf4d49ad27f253b06bbf9ca4a5",
+    "validation_per_photo.csv": "ec582318803e4b48586971348580771980c6d7d8d65998af5ba3465f15753ef4",
+    "rule_configuration.json": "edf417ea8311f022ea9dcb2310db27b049a026c65f19f7dcb287d88fa5d0d25f",
+    "sub_F4_conservative.csv": "238b0dc890e6c1e93bc60f643837f4e534b9705f1811ee038bbb3c182f24670c",
+    "sub_F4_moderate.csv": "b191eb5c88609bb060d360632f560bff0898601f88fd625282eda61f81926955"
+  },
+  "s0": {
+    "original_submission_id": 57275747,
+    "original_submission_sha256": "eb87c29dfb233d3d60ae24d805096f59f5d63995949ce63880c426beeeddea47",
+    "original_submission_rows": 1177,
+    "original_submission_nonempty_photos": 177,
+    "original_submission_bytes_verified": false,
+    "archive_replay_sha256_expected": "4e7187f9bd998efad6cefc471ee62f5f5acf9f208d1cadc900d640d8e9d1b519",
+    "archive_replay_bytes_verified": true,
+    "leaderboard_display": 0.39,
+    "test_predictions_scored": 0,
+    "replay_path": "/kaggle/input/datasets/lojhhggg/sanxiandata/submission.csv"
+  },
+  "s0_weights": [
+    {
+      "file": "unet_tu-tf_efficientnetv2_s_fold0.pt",
+      "family": "efficientnetv2_s",
+      "encoder": "tu-tf_efficientnetv2_s",
+      "fold": 0,
+      "trained_in": "v5",
+      "bytes": 89325371,
+      "sha256": "ce20a9a6adfba193cf8a7dc663b417d12faced974d2270a4598acf6056ce449f"
+    },
+    {
+      "file": "unet_tu-tf_efficientnetv2_s_fold1.pt",
+      "family": "efficientnetv2_s",
+      "encoder": "tu-tf_efficientnetv2_s",
+      "fold": 1,
+      "trained_in": "v5",
+      "bytes": 89325371,
+      "sha256": "801f1e9bae5726b9cb48d2e1c0780b4c3a10fffdeea6b1ba46bc9a154577c1e1"
+    },
+    {
+      "file": "unet_tu-tf_efficientnetv2_s_fold2.pt",
+      "family": "efficientnetv2_s",
+      "encoder": "tu-tf_efficientnetv2_s",
+      "fold": 2,
+      "trained_in": "v5",
+      "bytes": 89325371,
+      "sha256": "a0cbc4a19d07110dd64815ef72fb37387c2335805f6122205a6c7a984d16b2fd"
+    },
+    {
+      "file": "unet_tu-tf_efficientnetv2_s_fold3.pt",
+      "family": "efficientnetv2_s",
+      "encoder": "tu-tf_efficientnetv2_s",
+      "fold": 3,
+      "trained_in": "v5",
+      "bytes": 89325371,
+      "sha256": "3ead5c1278de4a2b8b5059e11fa12b1faae10068d1a968a9c7a384406baba74f"
+    },
+    {
+      "file": "unet_tu-tf_efficientnetv2_s_fold4.pt",
+      "family": "efficientnetv2_s",
+      "encoder": "tu-tf_efficientnetv2_s",
+      "fold": 4,
+      "trained_in": "v5",
+      "bytes": 89325371,
+      "sha256": "d33b80d2b4d62571a42287bddd89a0bac2257f3512e40f3eadcd2de09453138b"
+    },
+    {
+      "file": "unet_resnet34_fold0.pt",
+      "family": "resnet34",
+      "encoder": "resnet34",
+      "fold": 0,
+      "trained_in": "v3",
+      "bytes": 97897763,
+      "sha256": "8cae430cf6ce34b27f129830aa193006e23ea8219b39fad482b9413c0eba9c46"
+    },
+    {
+      "file": "unet_resnet34_fold1.pt",
+      "family": "resnet34",
+      "encoder": "resnet34",
+      "fold": 1,
+      "trained_in": "v3",
+      "bytes": 97897763,
+      "sha256": "716510c722bc1bcb8a2de964f3bb306e6ec454b51a113d9f6f39e58cb0c95c11"
+    },
+    {
+      "file": "unet_resnet34_fold2.pt",
+      "family": "resnet34",
+      "encoder": "resnet34",
+      "fold": 2,
+      "trained_in": "v3",
+      "bytes": 97897763,
+      "sha256": "5fd99479706aafffa79fc5c2d9a1992d63cc8e94e2be87c47bbc535174f6ead9"
+    },
+    {
+      "file": "unet_resnet34_fold3.pt",
+      "family": "resnet34",
+      "encoder": "resnet34",
+      "fold": 3,
+      "trained_in": "v3",
+      "bytes": 97897763,
+      "sha256": "ce7d74cb1d0c3e20c2501bc6bd4a55d050cabef2391940ee5603112deb4e5007"
+    },
+    {
+      "file": "unet_resnet34_fold4.pt",
+      "family": "resnet34",
+      "encoder": "resnet34",
+      "fold": 4,
+      "trained_in": "v3",
+      "bytes": 97897763,
+      "sha256": "ef075c73fafa4aa3507e70ee14b49eb13897daf3a329e49c1a937bd65b22d27a"
+    }
+  ],
+  "preferred_s0_cache_receipt": {
+    "source": "F4_V3/run_20261112_095826_111310/s0_cache_manifest.json",
+    "source_sha256": "246b788a018af411ab88503fd95764c1ce75c02937e36dae7bf6bd9e847414b1"
+  },
+  "annotation_sha256": "5da9e92b5a1a1947fd5d57adb6688269625c48ec1ef884daf2a01618c9ed54a1",
+  "test_inference": false,
+  "model_training": false
+}

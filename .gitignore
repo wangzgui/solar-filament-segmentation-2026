@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.pt
+*.pth
+*.npz
+/report/main.aux
+/report/main.bbl
+/report/main.blg
+/report/main.log
+/report/main.out
+/report/main.pdf

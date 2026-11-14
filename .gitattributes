@@ -1,0 +1,3 @@
+results/submission.csv -text
+src/h6a/reference_H*.csv -text
+*.pdf binary

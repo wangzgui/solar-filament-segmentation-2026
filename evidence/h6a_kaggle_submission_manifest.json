@@ -1,0 +1,31 @@
+{
+  "winner": "H6a",
+  "hashes": {
+    "H0": "238b0dc890e6c1e93bc60f643837f4e534b9705f1811ee038bbb3c182f24670c",
+    "H1": "f3cbffb83430395388b0d2ac6917108dd47117ce841150449fe80ecc6c669295",
+    "H2": "b1d2b5b8d3275758595b14438fae41864afd82fbd9a75804c749182fbd76daa1",
+    "H3a": "59e275e6bdbad24f4d60e5d9f38a05cba87d02f913d3000494d25956a03ce803",
+    "H3b": "59e275e6bdbad24f4d60e5d9f38a05cba87d02f913d3000494d25956a03ce803",
+    "H4a": "b1d2b5b8d3275758595b14438fae41864afd82fbd9a75804c749182fbd76daa1",
+    "H4b": "b1d2b5b8d3275758595b14438fae41864afd82fbd9a75804c749182fbd76daa1",
+    "H5": "f3cbffb83430395388b0d2ac6917108dd47117ce841150449fe80ecc6c669295",
+    "H6a": "0d170beedd870d5375cb83c3c83d1bc57a3dd852fd715be5b5bec9292a6e5dee",
+    "H6b": "69b8a6d42ae7f8f359b21f5a61e52fdab460785b4962f2f68e536aea3fc8e10c",
+    "H7": "69b8a6d42ae7f8f359b21f5a61e52fdab460785b4962f2f68e536aea3fc8e10c"
+  },
+  "known_public_lb_champion": "H2",
+  "changed_test_photos_vs_h2": {
+    "H0": 73,
+    "H1": 60,
+    "H2": 0,
+    "H3a": 2,
+    "H3b": 2,
+    "H4a": 0,
+    "H4b": 0,
+    "H5": 60,
+    "H6a": 10,
+    "H6b": 6,
+    "H7": 6
+  },
+  "test_gt_access": false
+}
