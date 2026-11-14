@@ -1,6 +1,6 @@
 # Solar Filament Segmentation Challenge 2026
 
-Solution by Zhuoer Wang, Sichuan University. The archived Fusion H6a submission displayed **0.40 PQ** on the Kaggle public leaderboard. The historical 16-photo development and 19-photo audit scores were 0.465532 and 0.475113.
+Solution by Zhuoer Wang. The archived Fusion H6a submission displayed **0.40 PQ** on the Kaggle public leaderboard. The historical 16-photo development and 19-photo audit scores were 0.465532 and 0.475113.
 
 The pipeline combines Mask R-CNN proposals, an instance-conditioned U-Net refiner, four-view mask aggregation, an independent semantic ensemble, and constrained selection of non-overlapping masks.
 
