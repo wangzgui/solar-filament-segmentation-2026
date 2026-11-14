@@ -34,9 +34,11 @@ The recorded main-view replay ran on a Tesla T4 with CUDA 12.8, PyTorch 2.10.0+c
 
 If a Kaggle link requires access, the missing input must be made available to the evaluator before independent reproduction can be considered complete. A reference CSV alone cannot substitute for split membership, candidate receipts, or model assets.
 
+The optional historical Blended training notebook uses its original missing-package fallback for `pycocotools==2.0.10`. Fusion replay uses `pycocotools==2.0.11`.
+
 ## Model sources and exact upstream weights
 
 - **A1 detector.** Use `best_detector.pth` (epoch 3) from the A1 V1 archive. Its SHA-256 is `c32dc1ffd885f0f076e840a84b3edd40632cbc3eaf55ca949c8f5ecb2328334f`. The A1 notebook contains the training, architecture and inference code.
 - **V1 refiner.** Use `checkpoints/refiner_best.pt` and the normalization assets from the V1 archive. Their hashes must match `v1_checkpoint_sha256` in A1's signed `baseline_audit.json`. See the V1 training notebook and the [original architecture source](https://www.kaggle.com/code/nomannic19/cv-solar-filament-mask-r-cnn-u-net-refiner).
 - **Mul2 semantic inputs.** The [GitHub U-Net source](https://github.com/ameyypawar/filament-seg) corresponds to `validated_unet_run3_last.pt` (SHA-256 `1d1dfd8042b44a198d52efb4c5b928abbf861cbe0e973a1ee77174ad19bf06f9`). The Blended checkpoint is `solar_v3/blended_shared_split_last.pt`. Mul2 validates both against the G3 asset contract and embeds their inference code. The [V3 training notebook](../notebooks/06_blended_training.ipynb) contains the Blended adaptation.
-- **H6a S0 ensemble.** The [author's eight-view notebook](https://www.kaggle.com/code/dariushafshar/solar-filament-u-net-oof-0-45-vs-public-0-39) and the repository's S0 notebook document the ten-model method. The required checkpoint archive is linked in the input table.
+- **H6a S0 ensemble.** The author describes the method in the linked checkpoint archive. The [semantic notebook](../notebooks/04_s0_semantic.ipynb) contains the eight-view inference code that generates the probability maps used by H6a.
