@@ -23,16 +23,16 @@ def rebuild_f4(base, probability):
     return masks
 
 
-def run(root, output):
+def run(root, output, *, mul2_root=None, weights_root=None, probability_root=None, native_only=False):
     reference = Path(__file__).with_name("fusion_reference.json")
     spec = json.loads(reference.read_text(encoding="utf-8"))["fit_models"]
     archive = unique(
-        (p.parent for p in root.rglob("run_identity.json")
+        (p.parent for p in (mul2_root or root).rglob("run_identity.json")
          if (p.parent / "photo_receipts" / "test").is_dir()
          and json.loads(p.read_text(encoding="utf-8")).get("identity") == MUL2_ID),
         "original Mul2 archive identity",
     )
-    receipt, _, models, _ = discover_039(root, "")
+    receipt, _, models, _ = discover_039(weights_root or root, "")
     if sha256(receipt) != S0_RECEIPT or sha256(receipt.parent / "folds.csv") != S0_FOLDS:
         raise ValueError("Use the original V2 S0 receipt and fold table")
     test = unique((p for p in root.rglob("test_images") if p.parent.name == "test" and p.is_dir()),
@@ -40,12 +40,15 @@ def run(root, output):
     photos = {p.stem: p for p in test.iterdir() if p.suffix.lower() in (".jpeg", ".jpg")}
     if len(photos) != 180:
         raise ValueError(f"Expected 180 test images; found {len(photos)}")
-    index = test_index(root)
+    index = test_index(probability_root or root)
     suffix = f"Solar_S1_0/p039_cache/{S0_RECEIPT[:16]}_{S0_FOLDS[:12]}"
     predictions = {}
     for k, (stem, photo) in enumerate(sorted(photos.items()), 1):
         base, views = read_receipt(archive, "test", stem, photo, MUL2_ID)
-        maps = {stem: [p for p in index.get(stem, []) if p.name == f"{stem}.npz"
+        filenames = {f"{stem}.npz"}
+        if native_only:
+            filenames.add(f"{stem}.s0.npz")
+        maps = {stem: [p for p in index.get(stem, []) if p.name in filenames
                        and p.parent.as_posix().endswith("/" + suffix)]}
         probability, _ = read_test_map(maps, stem, photo, models)
         bank = bank_for(rebuild_f4(base, probability), views, probability)

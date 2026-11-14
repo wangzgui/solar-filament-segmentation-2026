@@ -1,5 +1,19 @@
 # Reproducing Fusion H6a
 
+## Start with the evaluator notebook
+
+1. Import [00_final_demo.ipynb](../notebooks/00_final_demo.ipynb) into Kaggle. Join the competition and attach only the [official competition dataset](https://www.kaggle.com/competitions/filament-segmentation-2026/data). Enable Internet if the notebook needs to clone the repository or install a missing package.
+2. Run all cells in an interactive Kaggle session. KaggleHub resolves the exact public dataset versions automatically. Kaggle requires input sources to be available before a saved rerun, so run interactively before using Save Version.
+3. The default CPU mode writes `/kaggle/working/solar_final_demo/verified_replay-*/submission.csv` and a manifest after computing the new masks and checking the champion hash.
+
+| Mode | Starts from | Verification |
+| --- | --- | --- |
+| `verified_replay` (CPU) | Original Mul2 and S0 intermediate predictions; F4 geometry, candidate scoring, set selection and CSV are regenerated | Original notebook 05 produced the champion bytes on Kaggle. The new launcher is covered by local tests; its automated dataset attachment and full 180-photo run have not been independently verified. |
+| `fresh_s0` (CUDA, preferably dual T4) | Official test photos for all ten S0 neural forwards, plus signed Mul2 receipts | Uses the original S0 inference implementation. GPU execution and exact output parity are unverified. Reserve at least 8 GB temporary disk for inference accumulators, plus space for weights, maps and other inputs. |
+| `full_inference` | Goal: original images for both streams | Exits with the documented blocker. The original Mul2 test path reads archived A1 seed masks and G3/Q1 intermediates, and can also use an archived contour reference. The 35-photo GPU audit verified the main view; it does not establish raw-image parity for the full test roster. |
+
+The demo's default run skips training and evaluation. Its optional section points to the original training notebooks, model configuration, and labeled development/audit path. The [asset inventory](assets.md) identifies neural checkpoints, cached predictions, and files generated at run time.
+
 ## Test-only inference from intermediate predictions
 
 Use the official test images, signed Mul2 receipts V1, the Afshar V2 ensemble receipt, and the signed S0 test probability maps V2, linked below. Mount them in Kaggle with this repository checkout and run:

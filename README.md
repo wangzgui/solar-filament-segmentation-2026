@@ -6,6 +6,8 @@ The pipeline combines Mask R-CNN proposals, an instance-conditioned U-Net refine
 
 - [Technical report, four-page two-column edition](report/technical_report.pdf)
 - [Organizer-template report edition](report/technical_report_acm.pdf)
+- [Start here: evaluator demo](notebooks/00_final_demo.ipynb)
+- [Versioned models, weights and intermediate files](docs/assets.md)
 - [Full pipeline and input instructions](docs/reproduction.md)
 - [Exact model checkpoints and original source links](docs/reproduction.md#model-sources-and-exact-upstream-weights)
 - [Final Fusion notebook](notebooks/05_h6a_fusion.ipynb)
@@ -14,7 +16,7 @@ The pipeline combines Mask R-CNN proposals, an instance-conditioned U-Net refine
 - [Signed submission](results/submission.csv)
 - [Acknowledgments and original references](docs/upstream_attribution.md)
 
-`python verify_submission.py` validates the archived CSV's SHA-256, instance numbering, masks and pixel exclusivity. This checks the released file. To recompute predictions, run the notebooks with the inputs documented in the reproduction guide.
+The evaluator notebook automatically resolves the versioned Kaggle assets after the official competition dataset is attached. Its default CPU mode recomputes H6a from signed intermediate predictions, with training skipped. An optional GPU mode reruns the S0 neural ensemble. The full raw-image Mul2 path still requires further work and validation. `python verify_submission.py` validates the archived CSV's SHA-256, instance numbering and pixel exclusivity.
 
 Competition images and ground-truth annotations are obtained from the official competition. The repository contains code and aggregate diagnostic evidence. Checkpoint and cache locations are documented in the reproduction guide.
 
