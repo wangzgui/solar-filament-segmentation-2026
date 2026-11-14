@@ -1,6 +1,8 @@
 \documentclass[sigconf]{acmart}
 \input{preamble}
 \guideStylefalse
+\usepackage{float}
+\raggedbottom
 
 \begin{document}
 
@@ -25,115 +27,205 @@ This report goes over the details of our submitted solution to the Solar Filamen
 
 Thin extensions and adjacent filaments make the boundaries of individual masks difficult to assign. A detector can preserve object identity while missing a faint extension. A dense foreground map can recover that extension while also connecting unrelated objects. We use the dense probabilities to correct local contours and the candidate set to decide which objects to output. Figure~\ref{fig:pipeline} shows the sequence used for the final submission.
 
-\section{Methodology}\label{sec:methodology}
 
-\subsection{Instance models and training}
-The instance stream starts from a Mask R-CNN detector \cite{he2017mask} and instance-conditioned U-Net refiner \cite{ronneberger2015unet}. Preprocessing estimates disc geometry and corrects radial brightness before inference. The A1 adaptation uses a ResNet-50 feature pyramid \cite{lin2017fpn} at 1536-pixel detector resolution. Starting from the V1 detector, SGD runs for four epochs with initial learning rate 0.001. The adaptation uses 343 fitting and 85 tuning photos and the signed inference checkpoint is from epoch three. The frozen V1 refiner uses a ResNet-18 U-Net with 384-pixel crops and five channels: three grayscale copies, continuous coarse-mask probability, and radial position. V1 trains this model for eight epochs with AdamW, cosine decay, and equal BCE and Tversky loss weights. The repository contains the original V1 and A1 training workflows.
+MAGFiLO provides multiple annotation views for some photos. Faint boundaries and neighboring filaments affect whether annotators agree on the extent and identity of an instance. We predict one set of disjoint masks per photo and pool evaluation across annotation views.
 
-Mul2 runs two flips and two quarter-turns and aligns all masks to the native $2048\times2048$ grid. A conservative vote result yields reference instances $A$. Alternatives $D$ come from the four aligned donor streams. We deduplicate equal masks, retain provenance and scores, and discard donors below 96 pixels. View agreement strengthens the evidence for a reference identity. Disagreement preserves plausible alternatives for later selection.
+The proposal stream preserves alternative identities across four transforms. The semantic stream provides foreground evidence for narrow-band contour edits. A constrained selector compares each candidate with its neighbors before exporting native-grid RLE masks.
 
-\begin{figure}[t]
+\newpage
+\subsection*{System overview}
+Figure~\ref{fig:pipeline} shows the path from an H-$\alpha$ image to the submitted instance masks. A reference detector and refiner generate alternative masks, while the independent U-Net ensemble estimates foreground confidence.
+
+\begin{figure}[H]
   \centering
-  \includegraphics[width=.87\columnwidth]{pipeline.pdf}
-  \caption{Inference flow. Multi-view instance masks and the independent foreground ensemble meet at local contour correction and candidate scoring. The final constrained decision produces disjoint instances.}
+  \includegraphics[width=.83\columnwidth]{pipeline.pdf}
+  \caption{Fusion H6a inference pipeline. The instance and semantic streams supply complementary evidence for contour correction and set selection.}
   \Description{Flowchart from disc-normalized GONG imagery through separate instance and semantic branches, joined by contour correction, quality estimation, and constrained selection.}
   \label{fig:pipeline}
 \end{figure}
+The semantic step edits a narrow band around each matched contour. A candidate graph represents overlaps and fragment relationships before constrained selection.
+
+\noindent\textbf{Resources.} The implementation uses Mask R-CNN \cite{he2017mask}, feature pyramids \cite{lin2017fpn}, U-Net \cite{ronneberger2015unet} and the public Afshar foreground ensemble \cite{afshar2026solar}. The \href{https://github.com/wangzgui/solar-filament-segmentation-2026}{release repository} links the exact checkpoints, archived intermediate predictions and execution instructions.
+
+\clearpage
+\section{Methodology}\label{sec:methodology}
+\subsection{Instance models and training}
+
+The instance stream starts from a Mask R-CNN detector \cite{he2017mask} and instance-conditioned U-Net refiner \cite{ronneberger2015unet}. Preprocessing estimates disc geometry and corrects radial brightness before inference. The A1 adaptation uses a ResNet-50 feature pyramid \cite{lin2017fpn} at 1536-pixel detector resolution. Starting from the V1 detector, SGD runs for four epochs with initial learning rate 0.001. The adaptation uses 343 fitting and 85 tuning photos and the signed checkpoint is from epoch three. The frozen V1 refiner uses a ResNet-18 U-Net with 384-pixel crops and five channels: three grayscale copies, continuous coarse-mask probability, and radial position. V1 trains this model for eight epochs with AdamW, cosine decay, and equal BCE and Tversky loss weights. The repository contains the original V1 and A1 training workflows.
+
+Mul2 runs two flips and two quarter-turns and aligns all masks to the native $2048\times2048$ grid. A conservative vote result yields reference instances $A$. Alternatives $D$ come from the four aligned donor streams. We deduplicate equal masks, retain provenance and scores, and discard donors below 96 pixels. View agreement strengthens the evidence for a reference identity. Disagreement preserves plausible alternatives for later selection.
+
+
 
 \subsection{Dense semantic evidence and contour correction}
 Afshar's public ensemble \cite{afshar2026solar} provides a foreground probability map $P(x)$ on the native grid. We use five ResNet-34 and five EfficientNetV2-S U-Nets and average eight dihedral views. In the historical evaluation, the matched semantic predictions use the corresponding fold assignments. The signed ten-model ensemble predicts the test images.
 
 For a reference mask $M$ and its matched semantic component $U$, F4 considers edits within exterior and interior three-pixel bands $B_3^+(M)$ and $B_3^-(M)$:
-\begin{align*}
+\begin{align}
 A^+ &= (U\setminus M)\cap B_3^+(M)\cap\{P\geq0.55\},\\
 A^- &= (M\setminus U)\cap B_3^-(M)\cap\{P\leq0.22\}.
-\end{align*}
+\end{align}
 The contour rule protects the common core, restricts propagation to eight-connected pixels, enforces pixel ownership, and rejects edits that change the instance's component count. This keeps a connected semantic component from absorbing the identities of adjacent instances. The final selection step uses these corrected contours and the original donor masks.
 
 \subsection{Relational quality estimation}
 The candidate graph has nodes $C=A\cup D$. Node descriptors include detector confidence, area, elongation, radial position, view agreement, component count, and three semantic summaries (mean probability, high-probability fraction, and boundary contrast). Pairwise overlap, containment, skeleton endpoints, and principal-axis alignment identify duplicates, potential fragments, extensions, and nearby competition. The neighborhood radius is 36 pixels, and endpoint-based extension evidence requires alignment of at least 0.80.
 
-For candidate $c_i$, annotation views $V$ and view-specific mask sets $G_v$, the training target is
-\[
+For candidate $c_i$, annotation views $V$ and view-specific mask sets $G_v$, write $J_{ig}=\operatorname{IoU}(c_i,g)$. The training target is
+\begin{equation}
 y_i=\frac{1}{|V|}\sum_{v\in V}\max_{g\in G_v}
-\left[\operatorname{IoU}(c_i,g)\mathbf{1}\{\operatorname{IoU}(c_i,g)>0.5\}\right].
-\]
+\left[J_{ig}\mathbf{1}\{J_{ig}>0.5\}\right].
+\end{equation}
 An empty ground-truth set contributes zero. A standardized Ridge model ($\alpha=12$) uses these view-averaged targets and per-photo weighting. The development cohort uses leave-one-date-out predictions. The refit uses development labels for scoring the historical audit cohort and Test. Audit labels are reserved for evaluation.
 
 \subsection{Risk-aware set selection}
 The selection unit is a local candidate set. Let $q_i$ denote estimated quality and $\lambda$ the archived decision price. H6a applies a small bounded downward adjustment to contested or weak reference candidates:
-\[
+\begin{equation}
 \widetilde q_i=q_i-0.035\,\operatorname{clip}\bigl((\lambda+0.02-q_i)/0.16,0,1\bigr).
-\]
-The weakness tests use view support, semantic support, fragment evidence and competition. Each eligible candidate has a utility $u_i=\widetilde q_i-\lambda-\eta_i$ after policy costs. Let $E_h$ be hard pixel conflicts and $E_s$ soft fragment relations. The objective and primary conflict constraint are
-\begin{align*}
+\end{equation}
+The weakness tests use view support, semantic support, fragment evidence and competition. Each eligible candidate has a utility $u_i$ after subtracting $\lambda$ and policy cost $\eta_i$ from $\widetilde q_i$. The hard pixel conflicts are $E_h$, and the soft fragment relations are $E_s$. The objective and constraint are
+\begin{align}
 \max_{z\in\{0,1\}^{|C|}}\;&\sum_i u_i z_i-\sum_{(i,j)\in E_s}\rho_{ij}z_i z_j,\\
 &z_i+z_j\leq1,\quad (i,j)\in E_h.
-\end{align*}
-Local mixed-integer solves also enforce reference protections and conditional donor eligibility. The frozen H6a policy returns a subset of available masks. Every final instance is checked for nonzero area and disjoint pixel ownership, then encoded as COCO RLE. Figure~\ref{fig:examples} shows two predictions decoded from the submitted CSV.
+\end{align}
+Local mixed-integer solves also enforce reference protections and conditional donor eligibility. The frozen H6a policy returns a subset of available masks. Every final instance is checked for nonzero area and disjoint pixel ownership, then encoded as COCO RLE.
 
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=.88\textwidth]{segmentation_examples.png}
-  \caption{Two native-grid test predictions from the signed Fusion H6a CSV. Colors distinguish instance identities within each panel. The dotted disc is an orientation guide for the full mask canvas.}
-  \Description{Two full-disc instance mask canvases, one showing seven predicted filaments and the other showing thirteen.}
-  \label{fig:examples}
-\end{figure*}
 
+\subsection{Refiner objective and export}
+The refiner balances per-pixel classification and foreground overlap with
+\begin{equation}
+\mathcal L=0.5\mathcal L_{\mathrm{BCE}}+0.5\mathcal L_{\mathrm{Tversky}}.
+\end{equation}
+The chosen candidates retain their native-grid mask geometry. A serialization check verifies that masks are nonempty, pairwise disjoint, and unchanged after decoding.
+
+\subsection{Reproduction inputs}
+The signed release identifies the V1 refiner, A1 detector, four-view candidate bank, ten S0 checkpoints and frozen Ridge coefficients. The archived fusion run recalculates contours, scores and final instance selection from the intermediate predictions. Test predictions use no ground-truth labels.
+
+The local contour stage associates a reference only when its best semantic overlap is unique and the proposed semantic component overlaps no other reference. The rule also excludes identical masks, which need no edit. These restrictions limit contour changes where foreground identity is uncertain.
+
+For other candidates the selector retains the original donor shape and uses geometry, cross-view support and probability summaries to score it. Hard conflicts prevent pixel overlap. Soft penalties discourage selecting nearby fragments whose joint output would be redundant. The archived cost and Ridge coefficients stay fixed during test inference.
+
+\clearpage
 \section{Evaluation}\label{sec:evaluation}
-\subsection{Protocol}
-With one-to-one IoU matches strictly above 0.5, the official scoring implementation pools across annotation views:
-\[
-\mathrm{PQ}=\frac{\sum_{\text{matched}}\mathrm{IoU}}
-{\mathrm{TP}+(\mathrm{FP}+\mathrm{FN})/2}.
-\]
-We distinguish the 140-photo historical V1 ablation, the later 16-photo development and 19-photo audit cohorts, and public leaderboard results. Development and audit use fixed date-separated roles. Both are repeatedly inspected historical cohorts with possible upstream training exposure. These data support paired retrospective comparisons. They offer limited evidence about generalization to new dates and sites.
+\subsection{Protocol and leaderboard trajectory}
+The official evaluator matches instances at IoU strictly greater than 0.5 and pools match counts and IoU across annotation views \cite{kirillov2019panoptic}. PQ is the summed matched IoU divided by $\mathrm{TP}+(\mathrm{FP}+\mathrm{FN})/2$. We distinguish the early 140-photo stage ablation, the later 16-photo development and 19-photo audit cohorts, and the public leaderboard.
+
+\begin{table}[H]
+\caption{Observed public leaderboard milestones.}
+\centering
+\begin{tabular}{@{}lr@{}}
+\toprule
+System stage & Public PQ \\
+\midrule
+Early detector and refiner & $\approx$.36 \\
+Semantic-component candidate expansion & $\approx$.37 \\
+Graph candidates and quality estimation & $\approx$.38 \\
+Four-view candidate fusion & $\approx$.39 \\
+Semantic contour correction and set selection & .40 \\
+Fusion H6a & .40 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These milestones include changes to training, candidate generation and post-processing. The two 0.40 entries are rounded public scores.
 
 \subsection{Detector and refiner}
-We compare detector output and detector plus refiner under the same default policy on 140 historical V1 photos (204 annotation views). Table~\ref{tab:v1} shows a PQ gain of 0.01266, with 26 more matched instances across annotation views, one fewer FP, and 26 fewer FN. The same archive reports 0.39274 PQ in a separate detector-confidence calibration trial at 0.70. The detector-plus-refiner row uses the default 0.50 operating point.
+We compare two frozen model stages under the same default policy on 140 historical photos (204 annotation views). The refiner recovers 26 additional matches and improves pooled PQ by 0.01266. A separate detector-confidence calibration trial reaches 0.39274 at a threshold of 0.70.
 
-\begin{table}[h]
-\caption{Paired historic V1 model-stage comparison.}
-\label{tab:v1}
+\begin{table}[H]
+\caption{Paired historical detector and refiner comparison.}
 \centering
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
-Stage & PQ & TP & FP & FN \\
+Stage & PQ & TP & FP & FN\\
 \midrule
-Detector & .35928 & 915 & 939 & 509 \\
-Detector + refiner & .37194 & 941 & 938 & 483 \\
+Detector & .35928 & 915 & 939 & 509\\
+Detector + refiner & .37194 & 941 & 938 & 483\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Integrated system and semantic complementarity}
-On the later paired cohorts, the final system raises PQ by 0.01462 on development and 0.01340 on audit compared with the multi-view reference (Table~\ref{tab:later}). The semantic contour correction contributes a large share of the development gain. On the 19-photo audit cohort, the independently scored semantic ensemble matches 22 ground-truth instances across views missed by the multi-view result, and the multi-view result uniquely matches 21. Both match 141 and neither matches 62. These coverage counts describe complementary evidence and do not measure the gain available under final instance-set constraints.
+\subsection{Effect of soft risk adjustment}
+The H6a adjustment removes three development and two audit false positives relative to C5. Matched counts and mean matched IoU are identical on both cohorts.
 
-\begin{table}[h]
-\caption{Cumulative comparisons on the later paired cohorts.}
-\label{tab:later}
+\begin{table}[H]
+\caption{Paired C5 and Fusion H6a counts.}
+\centering
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+Cohort & Method & TP & FP & FN & SQ\\
+\midrule
+Dev. & C5 & 142 & 82 & 57 & .6885\\
+Dev. & H6a & 142 & 79 & 57 & .6885\\
+Audit & C5 & 167 & 67 & 79 & .6800\\
+Audit & H6a & 167 & 65 & 79 & .6800\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+\subsection{Integrated system and semantic complementarity}
+The later cohorts allow paired comparisons from multi-view reference masks to semantic-corrected contours and risk-aware selection. Against Mul2, H6a improves development PQ by 0.01462 and audit PQ by 0.01340. The F4 contour stage contributes most of the development improvement.
+
+\begin{table}[H]
+\caption{Cumulative effects on the paired development and audit cohorts.}
 \centering
 \begin{tabular}{@{}lrr@{}}
 \toprule
-System & Dev.\ PQ & Audit PQ \\
+System & Dev.\ PQ & Audit PQ\\
 \midrule
-Mul2 multi-view reference & .45091 & .46171 \\
-F4 semantic contour correction & .46313 & .46343 \\
-C1b relation-aware filtering & .46540 & .47029 \\
-C5 joint candidate selection & .46223 & .47313 \\
-Fusion H6a submitted policy & .46553 & .47511 \\
+Mul2 multi-view reference & .45091 & .46171\\
+F4 semantic contour correction & .46313 & .46343\\
+C1b relation-aware filtering & .46540 & .47029\\
+C5 joint candidate selection & .46223 & .47313\\
+\textbf{Fusion H6a} & \textbf{.46553} & \textbf{.47511}\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-H6a exceeds C5 by 0.00330 PQ on development and 0.00198 on audit, mainly through FP reduction. Both submissions display 0.40 on the public leaderboard, where H6a ranked higher. The unrounded difference is unavailable. The exact H6a file contains 1,268 disjoint masks on 179 of the 180 test photos and is identified by the SHA-256 prefix \texttt{0d170beedd870d53}. The repository records the complete digest, configuration, and cohort-level results. The final-stage cached replay and the much more expensive upstream network execution are described separately in its reproduction guide.
+The standalone semantic ensemble achieves 0.47651 PQ on the 19-photo audit cohort. It uniquely covers 22 annotated-view instances, while the multi-view detector uniquely covers 21. These counts quantify complementary coverage. A recovered match still has to coexist with the other instances in one legal prediction set.
 
-\subsection{Failure cases and remaining work}
-The H6a audit retained 167 matched annotation-view instances, alongside 65 FP and 79 FN. Among the matches, 33 have IoU between 0.5 and 0.6. Faint terminal branches, fragmented masks and neighboring objects that appear connected remain important sources of error. A dense foreground map helps recover contour detail, while choosing whether a competing mask should be an independent instance depends on its relationship to its neighbors.
+\begin{table}[H]
+\caption{Matched-instance overlap on the audit cohort (246 annotation-view instances).}
+\centering
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Matching pattern & Count & Share\\
+\midrule
+Both systems & 141 & 57.3\%\\
+Multi-view only & 21 & 8.5\%\\
+Semantic only & 22 & 8.9\%\\
+Neither & 62 & 25.2\%\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-We also evaluated explicit graph-based reconstruction using hierarchical foreground components and skeleton paths. A low-cost bridge can join two distinct filaments, while a split can damage a correct instance. The final submission uses graph-derived features for scoring and conflict decisions. An exploratory joint structural branch improved audit PQ by 0.01251, fell by 0.00690 on development, and displayed 0.39 when submitted. This is consistent with a small number of historical fixes failing to transfer across the images modified at test time.
+\subsection{Final submission}
+H6a gains 0.00330 development PQ and 0.00198 audit PQ over C5. Both display 0.40 on the public leaderboard, where H6a ranked higher. The final CSV contains 1,268 disjoint masks on 179 of 180 test photos, with SHA-256 prefix \texttt{0d170beedd870d53}.
 
-Follow-up work should test improved proposal recall and instance-conditioned shape refinement on dates and observatories held out from upstream training. Independent annotation views would help distinguish repeatable boundary failures from annotator disagreement. Reporting required checkpoints, split membership and the signed output makes the effect of an individual pipeline stage easier to verify.
+\begin{figure}[H]
+\centering
+\includegraphics[width=.85\columnwidth]{segmentation_examples.png}
+\caption{Two test predictions decoded from the signed CSV. Colors distinguish instance identities.}
+\Description{Two solar-disc canvases showing seven and thirteen predicted filament masks.}
+\end{figure}
+
+\clearpage
+\section{Discussion}
+H-$\alpha$ contrast varies across the solar disc. Faint tips can disappear into the background, and nearby or crossing filaments may appear connected. The multi-view detector supplies alternative identities, while the foreground map supplies evidence for local changes in boundary placement. The final policy explicitly accounts for competition between alternatives.
+
+The historical audit still contains 79 unmatched ground-truth instances and 65 unmatched predictions. Among 167 matches, 33 have IoU between 0.5 and 0.6. A change to a thin branch or a spurious bridge can therefore affect whether the evaluator counts an instance at all. The C5 comparison shows where the final H6a gain comes from: fewer false positives with the same number of matches and mean matched IoU.
+
+An exploratory structural reconstruction branch gained 0.01251 PQ on audit, lost 0.00690 on development, and displayed 0.39 on the leaderboard. Joining a weak fragment can incorrectly bridge distinct objects. Splitting an already correct instance can introduce extra false positives. These outcomes favor measuring both candidate coverage and instance-set consistency on independent dates before deploying broad changes.
+
+The development and audit observations were repeatedly used for project diagnostics and may have upstream training exposure. The paired experiments show which components changed PQ on these cohorts. Generalization across observing dates and stations requires a separately held-out evaluation.
+
+A remaining question is whether the hardest missed instances enter the proposal bank. A candidate-level overlap check can distinguish missing shapes from candidates suppressed during selection. For existing candidates, a complete-set comparison is needed because recovering one object can displace a correct neighbor. For weak or truncated shapes, training a refiner on the masks it will actually receive at inference is a more direct way to address the error.
+
+\section{Conclusion}
+Fusion H6a combines four-view proposals, semantic-guided contour correction and constrained candidate selection. It reached a displayed 0.40 on the public leaderboard. Its paired gains over the multi-view reference were 0.01462 development PQ and 0.01340 audit PQ. Future evaluations should prioritize candidate recall for faint structures and region-specific contour correction, using observations held out by date and station.
+
+\newpage
+The archived parameters, input identities and submission digest make the reported H6a output traceable. We release the code, checkpoint links and instructions to regenerate the predictions from the signed intermediate assets. The original Fusion run reproduced the signed CSV, while independent regeneration of all upstream neural predictions from the raw test images remains unverified.
 
 \section{Acknowledgment}\label{sec:acknowledgment}
 The organization of the Filament Segmentation Challenge 2026 is partially supported by the U.S. National Science Foundation (NSF) under Grant No. 2209912 and 2433781, directorate for Computer and Information Science and Engineering (CSE), and Office of Advanced Cyberinfrastructure (OAC), and Grant No. 2511630, AST Division Of Astronomical Sciences and MPS Directorate for Mathematical and Physical Sciences.
@@ -142,7 +234,23 @@ The Filament Segmentation Challenge 2026 is sponsored by the U.S. National Scien
 
 This work utilizes GONG data obtained by the NSO Integrated Synoptic Program, managed by the National Solar Observatory, which is operated by the Association of Universities for Research in Astronomy (AURA), Inc. under a cooperative agreement with the National Science Foundation and with contribution from the National Oceanic and Atmospheric Administration. The GONG network of instruments is hosted by the Big Bear Solar Observatory, High Altitude Observatory, Learmonth Solar Observatory, Udaipur Solar Observatory, Instituto de Astrofísica de Canarias, and Cerro Tololo Interamerican Observatory.
 
+
+{\footnotesize
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{main}
+}
+
+\subsection*{Open-source code and weights}
+\noindent
+\href{https://github.com/wangzgui/solar-filament-segmentation-2026}{Fusion H6a implementation and reproduction guide}\\
+\href{https://www.kaggle.com/code/nomannic19/cv-solar-filament-mask-r-cnn-u-net-refiner}{Original Mask R-CNN and Refiner code}\\
+\href{https://github.com/ameyypawar/filament-seg}{Filament-seg source} and
+\href{https://www.kaggle.com/datasets/ameypawar123456789/filament-seg-weights}{its U-Net weights}\\
+\href{https://www.kaggle.com/datasets/zhuowamg/v1output/versions/1}{V1 Refiner} and
+\href{https://www.kaggle.com/datasets/zhuowamg/a1data/versions/1}{A1 Detector weights}\\
+\href{https://www.kaggle.com/datasets/dariushafshar/solar-filament-unet-weights/versions/2}{Afshar's ten S0 checkpoints}\\
+\href{https://www.kaggle.com/datasets/zhuowamg/mul2out/versions/1}{Mul2 multi-view candidate archive} and
+\href{https://www.kaggle.com/datasets/zhuowamg/v3output}{Blended U-Net weights}
+
 
 \end{document}
