@@ -49,18 +49,26 @@ def protected(stats, cfg):
     return "accept"
 
 
-def describe_pairs(base, donor, archived, probability, local_rules=LOCAL):
-    legal(base)
-    legal(donor)
-    if probability.dtype != np.uint8:
-        raise ValueError("Expected original uint8 S0 map")
-    j = iou(base, donor)
+def eligible_pairs(j):
     eligible = []
     for a, row in enumerate(j):
         best = row.max(initial=0.)
         ties = np.flatnonzero(row == best)
         if 0. < best < 1. and len(ties) == 1 and np.count_nonzero(j[:, ties[0]]) == 1:
             eligible.append((a, int(ties[0])))
+    return eligible
+
+
+def describe_pairs(base, donor, archived, probability, local_rules=LOCAL):
+    legal(base)
+    legal(donor)
+    if probability.dtype != np.uint8:
+        raise ValueError("Expected original uint8 S0 map")
+    j = iou(base, donor)
+    eligible = eligible_pairs(j)
+    if archived is None:
+        # F4's local contour policy uses neither the historical margin nor its sign.
+        archived = [(a, s, 0.) for a, s in eligible]
     if set(eligible) != {(a, s) for a, s, _ in archived} or len(eligible) != len(archived):
         raise ValueError("Archived pairs differ from the exact upstream candidate pool")
     result = []

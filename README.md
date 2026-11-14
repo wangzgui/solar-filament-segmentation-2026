@@ -9,6 +9,7 @@ The pipeline combines Mask R-CNN proposals, an instance-conditioned U-Net refine
 - [Full pipeline and input instructions](docs/reproduction.md)
 - [Exact model checkpoints and original source links](docs/reproduction.md#model-sources-and-exact-upstream-weights)
 - [Final Fusion notebook](notebooks/05_h6a_fusion.ipynb)
+- [Test-only H6a inference](src/h6a/predict_champion.py)
 - [Readable Fusion source](src/h6a)
 - [Signed submission](results/submission.csv)
 - [Acknowledgments and original references](docs/upstream_attribution.md)

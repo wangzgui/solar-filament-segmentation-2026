@@ -1,5 +1,15 @@
 # Reproducing Fusion H6a
 
+## Test-only inference from intermediate predictions
+
+Use the official test images, signed Mul2 receipts V1, the Afshar V2 ensemble receipt, and the signed S0 test probability maps V2, linked below. Mount them in Kaggle with this repository checkout and run:
+
+```bash
+python src/h6a/predict_champion.py --input-root /kaggle/input --output /kaggle/working/sub_H6a.csv
+```
+
+This path computes the F4 associations directly from the candidate masks and semantic connected components. It rebuilds F4 contours, computes candidate features and Ridge scores, then runs the H6a mixed-integer selection and serializes new masks. It reads frozen Ridge parameters, original Mul2 proposal receipts, and original S0 probability maps. It does not load a reference submission, frozen per-photo F4 matches, historical probability maps, or ground-truth annotations. The expected champion digest is consulted only after serialization. The original Kaggle run below is the recorded byte-identical execution. This streamlined path has local synthetic equivalence coverage and is pending execution on the complete mounted Test set.
+
 ## Verified cached replay
 
 1. Import [05_h6a_fusion.ipynb](../notebooks/05_h6a_fusion.ipynb) into Kaggle and add the five inputs below. Preserve the archive layouts.
@@ -29,6 +39,8 @@ These notebooks document the stages used to create the signed inputs. Their use 
 | Four-view proposals and voting | [03_mul2_multiview](../notebooks/03_mul2_multiview.ipynb) | Uses the A1, V1, G3 and Q1 assets above, [original A1 contour reference](https://www.kaggle.com/datasets/zhuowamg/a1mulout/versions/1), [GitHub U-Net weights](https://www.kaggle.com/datasets/ameypawar123456789/filament-seg-weights), and [Blended weights](https://www.kaggle.com/datasets/zhuowamg/v3output). Writes the cached `vote_both` and four geometrically aligned donor streams. |
 | S0 semantic probability | [04_s0_semantic](../notebooks/04_s0_semantic.ipynb) | Official data and the Afshar V2 ensemble checkpoint receipt. Five ResNet34 and five EfficientNetV2-S U-Nets at native resolution with eight D4 views. The cached `baseline_u8` path is used by H6a. |
 | Semantic correction and instance-set selection | [05_h6a_fusion](../notebooks/05_h6a_fusion.ipynb) | Uses the signed inputs listed above. The stored Ridge weights are used for test predictions. |
+
+The historical [G3 graph](../notebooks/07_g3_graph.ipynb) and [Q1 quality](../notebooks/08_q1_quality.ipynb) notebooks document the two A1 upstream cache producers. They use the signed V1 and semantic assets above and the [legacy V1.4 archive](https://www.kaggle.com/models/zhuowamg/v1-4output) for provenance checks. Replaying Fusion H6a can start directly from the mounted signed Mul2 and S0 inputs.
 
 The recorded main-view replay ran on a Tesla T4 with CUDA 12.8, PyTorch 2.10.0+cu128, TorchVision 0.25.0+cu128 and OpenCV 4.13.0. `requirements.txt` pins Python package releases. Keep Kaggle's matching CUDA builds for the GPU stages. The lightweight H6a replay and CSV validator can use CPU.
 
